@@ -5,35 +5,34 @@
 
 #include "life.h"
 
-//old generation (aka current generation
-int oldGen[ROW_SIZE][COL_SIZE];
-//future generation
-int newGen[ROW_SIZE][COL_SIZE];
-
 /*
  * Main controller method. Sets up the game, facilitates user input, and controls the general flow of the program.
  */
 int main() {
 	int cellsAlive = 0;
 	char cont = ' ';
-    int j = 0, i = 0;
+    int i = 0, m = 0, n = 0;
     unsigned int matches = 0;
     int totalGen = 0;
     int menuOption = 0;
     int iter = 0;
+    
+    // gather space on the heap for the two matrices
+    int *oldGen = (int *)malloc(sizeof(int) * ROW_SIZE * COL_SIZE);
+    int *newGen = (int *)malloc(sizeof(int) * ROW_SIZE * COL_SIZE);
 	
     //create random seed
 	srand(time(NULL));
 	
     //initialize oldGen to all 0's
-	for (j = 0; j < ROW_SIZE; j++) {
-		for (i = 0; i < COL_SIZE; i++) {
-			oldGen[j][i] = 0;
+	for (m = 0; m < ROW_SIZE; m++) {
+		for (n = 0; n < COL_SIZE; n++) {
+			*(oldGen + (m * COL_SIZE) + n) = 0;
 		}
 	}
 	
     //initialize newGen to all 0's
-	updateGen();
+	updateGen(oldGen, newGen, ROW_SIZE, COL_SIZE);
     displayMenu();
     while ((menuOption = getUserInput()) < 1 || menuOption > 3) {
         printf("Invalid entry.\n\n");
@@ -50,11 +49,11 @@ int main() {
             break;
         }
         
-	} while (!randSeed(cellsAlive));
+	} while (!randSeed(cellsAlive, oldGen, ROW_SIZE, COL_SIZE));
 			
 	
 	printf("The current random seed is:\n");
-	printLife();
+	printLife(oldGen, ROW_SIZE, COL_SIZE);
 
 	while (cont != 'n') {
 		
@@ -68,15 +67,18 @@ int main() {
 			break;
 		}
 
-		for (i = 0; i <= (iter+totalGen); i++) {
+		for (i = 0; i <= (iter + totalGen); i++) {
             printf("\nGeneration %d:\n",i);
-			printLife();
-			getNewGen();
-			updateGen();
+			printLife(oldGen, ROW_SIZE, COL_SIZE);
+			getNewGen(oldGen, newGen, ROW_SIZE, COL_SIZE);
+			updateGen(oldGen, newGen, ROW_SIZE, COL_SIZE);
 		}
 		totalGen += iter;
 
 	}
+    
+    free(oldGen);
+    free(newGen);
 
 	return 0;
 }
@@ -124,12 +126,12 @@ int getUserInput() {
 /* 
  * Generate new colonies into newGen array 
  */
-void getNewGen() {
-    int j = 0, i = 0;
+void getNewGen(int *oldGen, int *newGen, int rows, int columns) {
+    int m = 0, n = 0;
     
-	for (; j < ROW_SIZE; j++) {
-		for (i = 0; i < COL_SIZE; i++){
-			newGen[j][i] = getNewCell(j,i);
+	for (; m < ROW_SIZE; m++) {
+		for (n = 0; n < COL_SIZE; n++){
+			*(newGen + (m * columns) + n) = getNewCell(oldGen, rows, columns, m, n);
 		}
 	}
 }
@@ -137,9 +139,9 @@ void getNewGen() {
 /*
  * Get the current cell's life status based on the game's rules found on the wiki page.
  */
-bool getNewCell(int row, int col) {
+bool getNewCell(int *matrix, int rows, int columns, int row, int col) {
 	//	0 = dead, 1 = alive, 0 = invalid array bound
-	bool life = oldGen[row][col];
+	bool life = *(matrix + (row * columns) + col);
 	//I.)get current neighbors' life statuses
 	/* Neighbor ordering (X = current cell)
 				0,1,2
@@ -153,44 +155,44 @@ bool getNewCell(int row, int col) {
 	if ((row - 1) < 0) {
 		neighbors[1] = 0;
 	} else {
-		neighbors[1] = oldGen[row-1][col];
+		neighbors[1] = *(matrix + ((row - 1) * columns) + (col + 0));
 	}
 	if ((row + 1) >= ROW_SIZE) {
 		neighbors[6] = 0;
 	} else {
-		neighbors[6] = oldGen[row+1][col];
+		neighbors[6] = *(matrix + ((row + 1) * columns) + (col + 0));
 	}
 	//horizontal
 	if ((col - 1) < 0) {
 		neighbors[3] = 0;
 	} else {
-		neighbors[3] = oldGen[row][col-1];
+		neighbors[3] = *(matrix + ((row + 0) * columns) + (col - 1));
 	}
 	if ((col + 1) >= COL_SIZE) {
 		neighbors[4] = 0;
 	} else {
-		neighbors[4] = oldGen[row][col+1];
+		neighbors[4] = *(matrix + ((row + 0) * columns) + (col + 1));
 	}
 	//---------CORNER neighbors
 	if (((row - 1) < 0) || ((col - 1 < 0))) {
 		neighbors[0] = 0;
 	} else {
-		neighbors[0] = oldGen[row-1][col-1];
+		neighbors[0] = *(matrix + ((row - 1) * columns) + (col - 1));
 	}
 	if (((row - 1) < 0) || ((col + 1) >= COL_SIZE)) {
 		neighbors[2] = 0;
 	} else {
-		neighbors[2] = oldGen[row-1][col+1];
+		neighbors[2] = *(matrix + ((row - 1) * columns) + (col + 1));
 	}
 	if (((row + 1) >= ROW_SIZE) || ((col - 1) < 0)) {
 		neighbors[5] = 0;
 	} else {
-		neighbors[5] = oldGen[row+1][col-1];
+		neighbors[5] = *(matrix + ((row + 1) * columns) + (col - 1));
 	}
 	if (((row + 1) >= ROW_SIZE) || ((col + 1) >= COL_SIZE)) {
 		neighbors[7] = 0;
 	} else {
-		neighbors[7] = oldGen[row+1][col+1];
+		neighbors[7] = *(matrix + ((row + 1) * columns) + (col + 1));
 	}
 
 	//II.) Determine whether current cell lives or dies according to rules
@@ -226,14 +228,14 @@ int arraySum(int array[], int size) {
 /*
  * Print the current generation of cells to the console.
  */
-void printLife() {
+void printLife(int *matrix, int rows, int columns) {
 	char live = 'X';
 	char dead = '.';
-    int j = 0, i = 0;
+    int m = 0, n = 0;
     
-	for (; j < ROW_SIZE; j++) {
-		for (i = 0; i < COL_SIZE; i++) {
-			if (oldGen[j][i] == 1) {
+	for (; m < rows; m++) {
+		for (n = 0; n < columns; n++) {
+			if (*(matrix + (columns * m) + n) == 1) {
 				printf("%c ", live);
 			} else {
 				printf("%c ", dead);
@@ -247,29 +249,30 @@ void printLife() {
 /*
  * Once the new generation has been determined, set the old generation to be equal to the new generation.
  */
-void updateGen() {
-    int j = 0, i = 0;
-	for (; j < ROW_SIZE; j++) {
-		for (i = 0; i < COL_SIZE; i++) {
-			oldGen[j][i] = newGen[j][i];
+void updateGen(int *oldGen, int *newGen, int rows, int columns) {
+    int m = 0, n = 0, offset = 0;
+	for (; m < rows; m++) {
+		for (n = 0; n < columns; n++) {
+            offset = (columns * m) + n;
+			*(oldGen + offset) = *(newGen + offset);
 		}
 	}
 }
 
 /*
- * Generates a random starting habitat for the game's seed. Note: Seeding in a cell can reoccur at random.
+ * Generates a random starting habitat for the game's seed. Note: Seeding can reoccur in a cell at random.
  */
-bool randSeed(int rands) {
+bool randSeed(int rands, int *matrix, int rows, int columns) {
 	bool goodGen = 0;
-	int maxRands = ROW_SIZE * COL_SIZE;
+	int maxRands = rows * columns;
 	int m = 0, n = 0, i = 0;
 	if (rands > maxRands) {
 		printf("\nERROR: invalid cell number.\n");
 	} else {
 		for(i = rands; i > 0; i--) {
-			m = rand() % ROW_SIZE;
-			n = rand() % COL_SIZE;
-			oldGen[m][n] = 1;
+			m = rand() % rows;
+			n = rand() % columns;
+            *(matrix + (columns * m) + n) = 1;
 		}
 		goodGen = 1;
 	}

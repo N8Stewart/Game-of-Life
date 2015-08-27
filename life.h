@@ -8,11 +8,11 @@
 
 typedef enum { false, true } bool;
 
-bool getNewCell(int row, int col);
-void getNewGen();
+bool getNewCell(int *matrix, int rows, int columns, int row, int col);
+void getNewGen(int *oldGen, int *newGen, int rows, int columns);
 int arraySum(int arry[], int size);
-bool randSeed(int rands);
-void updateGen();
-void printLife();
+bool randSeed(int rands, int *matrix, int rows, int columns);
+void updateGen(int *oldGen, int *newGen, int rows, int columns);
+void printLife(int *matrix, int rows, int columns);
 void displayMenu();
 int getUserInput();

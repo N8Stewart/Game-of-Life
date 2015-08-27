@@ -10,12 +10,17 @@ int oldGen[ROW_SIZE][COL_SIZE];
 //future generation
 int newGen[ROW_SIZE][COL_SIZE];
 
-//main loop
+/*
+ * Main controller method. Sets up the game, facilitates user input, and controls the general flow of the program.
+ */
 int main() {
 	int cellsAlive = 0;
 	char cont = ' ';
     int j = 0, i = 0;
     unsigned int matches = 0;
+    int totalGen = 0;
+    int menuOption = 0;
+    int iter = 0;
 	
     //create random seed
 	srand(time(NULL));
@@ -26,17 +31,19 @@ int main() {
 			oldGen[j][i] = 0;
 		}
 	}
-    
-	int totalGen = 0;
 	
     //initialize newGen to all 0's
 	updateGen();
-	printf("==(1010100)===Welcome to the Game of Life===(0110010)==\n");
+    displayMenu();
+    while ((menuOption = getUserInput()) < 1 || menuOption > 3) {
+        printf("Invalid entry.\n\n");
+        displayMenu();
+    }
 	
 	//prompt for number of cells to randomly seed
 	do {
         
-		printf("\nHow many alive cells should the seed generate? (maximum of %d)", ROW_SIZE*COL_SIZE);
+		printf("\nHow many alive cells should the seed generate? (maximum of %d)", ROW_SIZE * COL_SIZE);
 		matches = scanf("%d", &cellsAlive);
         if (matches != 1) {
             printf("Invalid input.\n");
@@ -45,7 +52,7 @@ int main() {
         
 	} while (!randSeed(cellsAlive));
 			
-	int iter = 0;
+	
 	printf("The current random seed is:\n");
 	printLife();
 
@@ -74,10 +81,52 @@ int main() {
 	return 0;
 }
 
+/*
+ * Setup the game using various user inputs 
+ */
+void initGame() {
+    
+}
+
+/*
+ * Output the menu to the main menu to the console.
+ */
+void displayMenu() {
+    printf("Welcome to Conway's Game of Life.\n");
+    printf("1. Description of Game\n");
+    printf("2. Begin game\n");
+    printf("3. Quit\n");
+}
+
+/*
+ * Output the a description of the game and the url where more information can be found
+ */
+void outputDescription() {
+       
+}
+
+/*
+ * Grab user input from the console. 
+ * Return the integer entered by the user if the input is an integer followed by '\n'. Otherwise return -1.
+ */
+int getUserInput() {
+    int userInput;
+    char term;
+    if(scanf("%d%c", &userInput, &term) != 2 || term != '\n') {
+        // Clear stdin
+        while (getchar()!='\n');        
+        userInput = -1;
+    }
+    
+    return userInput;
+}
+
+/* 
+ * Generate new colonies into newGen array 
+ */
 void getNewGen() {
     int j = 0, i = 0;
     
-    /* Generate new colonies into newGen array */
 	for (; j < ROW_SIZE; j++) {
 		for (i = 0; i < COL_SIZE; i++){
 			newGen[j][i] = getNewCell(j,i);
@@ -85,8 +134,10 @@ void getNewGen() {
 	}
 }
 
+/*
+ * Get the current cell's life status based on the game's rules found on the wiki page.
+ */
 bool getNewCell(int row, int col) {
-    /*get current cell's life status*/
 	//	0 = dead, 1 = alive, 0 = invalid array bound
 	bool life = oldGen[row][col];
 	//I.)get current neighbors' life statuses
@@ -162,18 +213,20 @@ bool getNewCell(int row, int col) {
 	return life;
 }
 
-int arraySum(int arry[], int size) {
+int arraySum(int array[], int size) {
     /* get sum of all elements of inputted aray */
 	int sum = 0;
     int i = 0;
 	for (; i < size; i++) {
-		sum += arry[i];
+		sum += array[i];
 	}
 	return sum;
 }
 
+/*
+ * Print the current generation of cells to the console.
+ */
 void printLife() {
-    /*prints out the current generation of cells*/
 	char live = 'X';
 	char dead = '.';
     int j = 0, i = 0;
@@ -191,8 +244,10 @@ void printLife() {
 	printf("\n");
 }
 
+/*
+ * Once the new generation has been determined, set the old generation to be equal to the new generation.
+ */
 void updateGen() {
-    /*inchworms the oldGen to be the newGen once newGen is determined*/
     int j = 0, i = 0;
 	for (; j < ROW_SIZE; j++) {
 		for (i = 0; i < COL_SIZE; i++) {
@@ -201,18 +256,19 @@ void updateGen() {
 	}
 }
 
+/*
+ * Generates a random starting habitat for the game's seed. Note: Seeding in a cell can reoccur at random.
+ */
 bool randSeed(int rands) {
-    /* generates a random starting habitat for the game's seed. 
-	Note: seeding in a cell can reoccur at random */
 	bool goodGen = 0;
-	int maxRands = ROW_SIZE*COL_SIZE;
+	int maxRands = ROW_SIZE * COL_SIZE;
 	int m = 0, n = 0, i = 0;
 	if (rands > maxRands) {
 		printf("\nERROR: invalid cell number.\n");
 	} else {
 		for(i = rands; i > 0; i--) {
-			m = rand()%ROW_SIZE;
-			n = rand()%COL_SIZE;
+			m = rand() % ROW_SIZE;
+			n = rand() % COL_SIZE;
 			oldGen[m][n] = 1;
 		}
 		goodGen = 1;

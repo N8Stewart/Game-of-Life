@@ -14,3 +14,5 @@ int arraySum(int arry[], int size);
 bool randSeed(int rands);
 void updateGen();
 void printLife();
+void displayMenu();
+int getUserInput();

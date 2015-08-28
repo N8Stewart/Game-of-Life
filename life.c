@@ -38,6 +38,19 @@ int main() {
         printf("Invalid entry.\n\n");
         displayMenu();
     }
+    
+    // Switch on the menu option to figure out what to do
+    switch(menuOption) {
+        case 1:
+            
+            break;
+        case 2:
+            
+            break;
+        case 3:
+            
+            break;
+    }
 	
 	//prompt for number of cells to randomly seed
 	do {
@@ -104,7 +117,9 @@ void displayMenu() {
  * Output the a description of the game and the url where more information can be found
  */
 void outputDescription() {
-       
+    printf("\nConway's Game of Life is a mathematical implementation of cellular automation.\n");
+    printf("Essentially, an initial seed of 'living cells' is created and then every generation, some cells die, others live, and others are born. This occurs until the only living cells form known patterns that never die.\n");
+    printf("For more information, see the wikipedia page: https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life.\n");
 }
 
 /*

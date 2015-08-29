@@ -79,7 +79,7 @@ int main() {
                 printf("\nGeneration %d:\n", currGen);
                 printLife(*history, ROW_SIZE, COL_SIZE);
                 getNewGen(*history, newGen, ROW_SIZE, COL_SIZE);
-                swapGen(&newGen, &history);
+                swapGen(&newGen, &history, HISTORY_SIZE);
             }
             totalGen += iter;
 
@@ -278,11 +278,11 @@ void printLife(int *matrix, int rows, int columns) {
 }
 
 /*
- * Swap the history so (history + 0) = newGen and newGen = (history + HISTORY_SIZE - 1)
+ * Swap the history so (history + 0) = newGen and newGen = (history + historySize - 1)
  */
-void swapGen(int **newGen, int ***history) {
+void swapGen(int **newGen, int ***history, int historySize) {
     
-    int i = HISTORY_SIZE - 1;
+    int i = historySize - 1;
     
     // Store last spot in history into temp. This will become newGen
     int *temp = *(*history + i);

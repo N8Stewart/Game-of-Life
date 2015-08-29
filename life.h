@@ -13,7 +13,7 @@ bool getNewCell(int *matrix, int rows, int columns, int row, int col);
 void getNewGen(int *oldGen, int *newGen, int rows, int columns);
 int arraySum(int arry[], int size);
 bool randSeed(int rands, int *matrix, int rows, int columns);
-void swapGen(int **newGen, int ***history);
+void swapGen(int **newGen, int ***history, int historySize);
 void printLife(int *matrix, int rows, int columns);
 void displayMenu();
 int getUserInput();

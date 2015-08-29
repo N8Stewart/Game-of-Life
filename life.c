@@ -235,26 +235,53 @@ bool getNewCell(int *matrix, int rows, int columns, int row, int col) {
 		neighbors[4] = *(matrix + ((row + 0) * columns) + (col + 1));
 	}
 	//---------CORNER neighbors
-	if (((row - 1) < 0) || ((col - 1 < 0))) { // top left corner
-		neighbors[0] = *(matrix + ((row - 1 + rows) * columns) + (col - 1 + columns));
-	} else {
-		neighbors[0] = *(matrix + ((row - 1) * columns) + (col - 1));
-	}
-	if (((row - 1) < 0) || ((col + 1) >= COL_SIZE)) { // top right corner
-		neighbors[2] = *(matrix + ((row - 1 + rows) * columns) + (0));
-	} else {
-		neighbors[2] = *(matrix + ((row - 1) * columns) + (col + 1));
-	}
-	if (((row + 1) >= ROW_SIZE) || ((col - 1) < 0)) { // bottom left corner
-		neighbors[5] = *(matrix + ((0) * columns) + (col - 1 + columns));
-	} else {
-		neighbors[5] = *(matrix + ((row + 1) * columns) + (col - 1));
-	}
-	if (((row + 1) >= ROW_SIZE) || ((col + 1) >= COL_SIZE)) { // bottom right corner
-		neighbors[7] = 0;
-	} else {
-		neighbors[7] = *(matrix + ((0) * columns) + (0));
-	}
+    if ((row - 1) < 0) {
+        if ((col - 1) < 0) { // top left corner
+            neighbors[0] = *(matrix + ((row - 1 + rows) * columns) + (col - 1 + columns));
+        } else { // top row but not far left column
+            neighbors[0] = *(matrix + ((row - 1 + rows) * columns) + (col - 1));
+        }
+    } else if ((col - 1) < 0) { // left column but not top row
+        neighbors[0] = *(matrix + ((row - 1) * columns) + (col - 1 + columns));
+    } else { // neither the top row or the far left column
+        neighbors[0] = *(matrix + ((row - 1) * columns) + (col - 1));
+    }
+    
+    if ((row - 1) < 0) {
+        if ((col + 1) >= COL_SIZE) { // top right corner
+            neighbors[2] = *(matrix + ((row - 1 + rows) * columns) + (0));
+        } else { // top row but not far right column
+            neighbors[2] = *(matrix + ((row - 1 + rows) * columns) + (col + 1));
+        }
+    } else if ((col + 1) >= COL_SIZE) { // right column but not top row
+        neighbors[2] = *(matrix + ((row - 1) * columns) + (0));
+    } else { // neither the top row or the far right column
+        neighbors[2] = *(matrix + ((row - 1) * columns) + (col + 1));
+    }
+    
+    if ((row + 1) >= ROW_SIZE) {
+        if ((col - 1) < 0) { // bottom left corner
+            neighbors[5] = *(matrix + ((0) * columns) + (col - 1 + columns));
+        } else { // bottom row but not far left column
+            neighbors[5] = *(matrix + ((0) * columns) + (col - 1));
+        }
+    } else if ((col - 1) < 0) { // far left column but not bottom row
+        neighbors[5] = *(matrix + ((row + 1) * columns) + (col - 1 + columns));
+    } else { // neither the bottom row or the left column
+        neighbors[5] = *(matrix + ((row + 1) * columns) + (col - 1));
+    }
+    
+    if ((row + 1) >= ROW_SIZE) { 
+        if ((col + 1) >= COL_SIZE) { // bottom right corner
+            neighbors[7] = *(matrix + ((0) * columns) + (0));
+        } else { // bottom row but not right most column
+            neighbors[7] = *(matrix + ((0) * columns) + (col + 1));
+        }
+    } else if ((col + 1) >= COL_SIZE) { // right most column but not bottom row
+        neighbors[7] = *(matrix + ((row + 1) * columns) + (0));
+    } else { // neither the bottom row or the right column
+        neighbors[7] = *(matrix + ((row + 1) * columns) + (col + 1));
+    }
 
 	//II.) Determine whether current cell lives or dies according to rules
     numNeighborsAlive = arraySum(neighbors);

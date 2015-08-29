@@ -14,13 +14,17 @@ int main() {
     int i = 0, m = 0, n = 0;
     unsigned int matches = 0;
     int totalGen = 0;
+    int currGen = 0;
     int menuOption = 0;
     int iter = 0;
     int offset = 0;
     
-    // gather space on the heap for the two matrices
-    int *oldGen = (int *)malloc(sizeof(int) * ROW_SIZE * COL_SIZE);
+    // gather space on the heap for the two matrices and the history
     int *newGen = (int *)malloc(sizeof(int) * ROW_SIZE * COL_SIZE);
+    int **history = (int **)malloc(sizeof(int *) * HISTORY_SIZE);
+    for (i = 0; i < HISTORY_SIZE; i++) {
+        *(history + i) = (int *)malloc(sizeof(int) * ROW_SIZE * COL_SIZE);
+    }
     
     while ((menuOption = getMenuOption()) != 3) {
         
@@ -36,7 +40,7 @@ int main() {
         for (m = 0; m < ROW_SIZE; m++) {
             for (n = 0; n < COL_SIZE; n++) {
                 offset = (m * COL_SIZE) + n;
-                *(oldGen + offset) = 0;
+                *(*history + offset) = 0;
                 *(newGen + offset) = 0;
             }
         }
@@ -51,11 +55,14 @@ int main() {
                 break;
             }
 
-        } while (!randSeed(cellsAlive, oldGen, ROW_SIZE, COL_SIZE));
+        } while (!randSeed(cellsAlive, *history, ROW_SIZE, COL_SIZE));
 
         printf("The current random seed is:\n");
-        printLife(oldGen, ROW_SIZE, COL_SIZE);
+        printLife(*history, ROW_SIZE, COL_SIZE);
 
+        // Reset the generation count and begin a new game
+        currGen = 0;
+        totalGen = 0;
         while (cont != 'n') {
 
             printf("\nHow many generations do you simulate (positive integer or -1 to return to the menu)?");
@@ -68,21 +75,23 @@ int main() {
                 break;
             }
 
-            for (i = 0; i <= (iter + totalGen); i++) {
-                printf("\nGeneration %d:\n",i);
-                printLife(oldGen, ROW_SIZE, COL_SIZE);
-                getNewGen(oldGen, newGen, ROW_SIZE, COL_SIZE);
-                printf("%p %p", oldGen, newGen);
-                swapGen(&oldGen, &newGen);
-                printf("%p %p", oldGen, newGen);
+            for (; currGen <= (iter + totalGen); currGen++) {
+                printf("\nGeneration %d:\n", currGen);
+                printLife(*history, ROW_SIZE, COL_SIZE);
+                getNewGen(*history, newGen, ROW_SIZE, COL_SIZE);
+                swapGen(&newGen, &history);
             }
             totalGen += iter;
 
         }
     }
     
-    free(oldGen);
+    // Free the 2 matrix generations and the history
     free(newGen);
+    for (i = 0; i < HISTORY_SIZE; i++) {
+        free(*(history + i));
+    }
+    free(history);
 
 	return 0;
 }
@@ -269,12 +278,20 @@ void printLife(int *matrix, int rows, int columns) {
 }
 
 /*
- * Swap the two pointers so oldGen stores the values for newGen and newGen stores the values of oldGen
+ * Swap the history so (history + 0) = newGen and newGen = (history + HISTORY_SIZE - 1)
  */
-void swapGen(int **oldGen, int **newGen) {
-    int *temp = *oldGen;
-    *oldGen = *newGen;
+void swapGen(int **newGen, int ***history) {
+    
+    int i = HISTORY_SIZE - 1;
+    
+    // Store last spot in history into temp. This will become newGen
+    int *temp = *(*history + i);
+    for (; i > 0; i--) {
+        *(*history + i) = *(*history + i - 1);
+    }
+    *(*history) = *newGen;
     *newGen = temp;
+    
 }
 
 /*

@@ -200,7 +200,7 @@ void getNewGen(int *oldGen, int *newGen, int rows, int columns) {
  */
 bool getNewCell(int *matrix, int rows, int columns, int row, int col) {
 	//	0 = dead, 1 = alive, 0 = invalid array bound
-	bool life = *(matrix + (row * columns) + col);
+	bool currGenAlive = *(matrix + (row * columns) + col);
 	//I.)get current neighbors' life statuses
 	/* Neighbor ordering (X = current cell)
 				0,1,2
@@ -208,6 +208,8 @@ bool getNewCell(int *matrix, int rows, int columns, int row, int col) {
 				5,6,7
 	*/
 	int neighbors[8];
+    bool nextGenAlive;
+    int numNeighborsAlive;
 	/*If a index manipulation results in an out of bounds, that undefined cell = 0*/
 	//--------ORTHAGONAL neighbors
 	//veritcal
@@ -255,31 +257,36 @@ bool getNewCell(int *matrix, int rows, int columns, int row, int col) {
 	}
 
 	//II.) Determine whether current cell lives or dies according to rules
-	if (life == 1) {
+    numNeighborsAlive = arraySum(neighbors);
+    nextGenAlive = false;
+	if (currGenAlive == 1) {
 	//1. Any live cell with fewer than two live neighbours dies, as if caused by under-population.
-		if (arraySum(neighbors, 8) < 2)
-			life = 0;
+		if (numNeighborsAlive < 2)
+			nextGenAlive = false;
 	//2. Any live cell with two or three live neighbours lives on to the next generation.
-		if (arraySum(neighbors, 8) == 2 || arraySum(neighbors, 8) == 3)
-			life = 1;
+		if (numNeighborsAlive == 2 || numNeighborsAlive == 3)
+			nextGenAlive = true;
 	//3. Any live cell with more than three live neighbours dies, as if by overcrowding.
-		if (arraySum(neighbors, 8) > 3)
-			life = 0;
-	} else if (life == 0) {
+		if (numNeighborsAlive > 3)
+			nextGenAlive = false;
+	} else {
 	//4. Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-		if (arraySum(neighbors, 8) == 3)
-			life = 1;
+		if (numNeighborsAlive == 3)
+			nextGenAlive = true;
 	}
 	
-	return life;
+	return nextGenAlive;
 }
 
-int arraySum(int array[], int size) {
-    /* get sum of all elements of inputted aray */
+/*
+ * @returns the number of alive neighbors
+ */ 
+int arraySum(int *array) {
 	int sum = 0;
     int i = 0;
+    int size = 8;
 	for (; i < size; i++) {
-		sum += array[i];
+		sum += *(array + i);
 	}
 	return sum;
 }

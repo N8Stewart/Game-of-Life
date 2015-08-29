@@ -12,7 +12,6 @@ int main() {
 	int cellsAlive = 0;
 	char cont = ' ';
     int i = 0, m = 0, n = 0;
-    unsigned int matches = 0;
     int totalGen = 0;
     int currGen = 0;
     int menuOption = 0;
@@ -36,7 +35,7 @@ int main() {
         //create random seed
         srand(time(NULL));
 	
-        //initialize oldGen to all 0's
+        //initialize oldGen and newGen to all 0's
         for (m = 0; m < ROW_SIZE; m++) {
             for (n = 0; n < COL_SIZE; n++) {
                 offset = (m * COL_SIZE) + n;
@@ -45,18 +44,15 @@ int main() {
             }
         }
 
-        //prompt for number of cells to randomly seed
-        do {
-
+        // Get the number of random seeds
+        printf("\nHow many alive cells should the seed generate? (maximum of %d)", ROW_SIZE * COL_SIZE);
+        while ((cellsAlive = getUserInput()) < 0 || cellsAlive > (ROW_SIZE * COL_SIZE)) {
+            printf("Invalid entry.\n\n");
             printf("\nHow many alive cells should the seed generate? (maximum of %d)", ROW_SIZE * COL_SIZE);
-            matches = scanf("%d", &cellsAlive);
-            if (matches != 1) {
-                printf("Invalid input.\n");
-                break;
-            }
-
-        } while (!randSeed(cellsAlive, *history, ROW_SIZE, COL_SIZE));
-
+        }
+    
+        // Seed the matrix and output it to the screen
+        randSeed(cellsAlive, *history, ROW_SIZE, COL_SIZE);
         printf("The current random seed is:\n");
         printLife(*history, ROW_SIZE, COL_SIZE);
 
@@ -65,13 +61,14 @@ int main() {
         totalGen = 0;
         while (cont != 'n') {
 
-            printf("\nHow many generations do you simulate (positive integer or -1 to return to the menu)?");
-            matches = scanf("%d", &iter);
+            // Get the number of random seeds
+            printf("\nHow many generations do you simulate (positive integer or 0 to return to the menu)?");
+            while ((iter = getUserInput()) < 0) {
+                printf("Invalid entry.\n\n");
+                printf("\nHow many generations do you simulate (positive integer or 0 to return to the menu)?");
+            }
 
-            if (matches != 1) {
-                printf("Invalid input.\n");
-                break;
-            } else if (iter == -1) {
+            if (iter == -1) {
                 break;
             }
 
@@ -297,19 +294,11 @@ void swapGen(int **newGen, int ***history, int historySize) {
 /*
  * Generates a random starting habitat for the game's seed. Note: Seeding can reoccur in a cell at random.
  */
-bool randSeed(int rands, int *matrix, int rows, int columns) {
-	bool goodGen = 0;
-	int maxRands = rows * columns;
+void randSeed(int rands, int *matrix, int rows, int columns) {
 	int m = 0, n = 0, i = 0;
-	if (rands > maxRands) {
-		printf("\nERROR: invalid cell number.\n");
-	} else {
-		for(i = rands; i > 0; i--) {
-			m = rand() % rows;
-			n = rand() % columns;
-            *(matrix + (columns * m) + n) = 1;
-		}
-		goodGen = 1;
-	}
-	return goodGen;
+	for (i = rands; i > 0; i--) {
+		m = rand() % rows;
+        n = rand() % columns;
+        *(matrix + (columns * m) + n) = 1;
+    }
 }

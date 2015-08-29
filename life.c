@@ -211,47 +211,47 @@ bool getNewCell(int *matrix, int rows, int columns, int row, int col) {
 	/*If a index manipulation results in an out of bounds, that undefined cell = 0*/
 	//--------ORTHAGONAL neighbors
 	//veritcal
-	if ((row - 1) < 0) {
-		neighbors[1] = 0;
+	if ((row - 1) < 0) { // we are on the top row, so wrap around to the bottom row
+        neighbors[1] = *(matrix + ((row - 1 + rows) * columns) + (col + 0));
 	} else {
 		neighbors[1] = *(matrix + ((row - 1) * columns) + (col + 0));
 	}
-	if ((row + 1) >= ROW_SIZE) {
-		neighbors[6] = 0;
+	if ((row + 1) >= ROW_SIZE) { // We are on the bottom row, so wrap around to the top row
+		neighbors[6] = *(matrix + ((0) * columns) + (col + 0));
 	} else {
 		neighbors[6] = *(matrix + ((row + 1) * columns) + (col + 0));
 	}
 	//horizontal
-	if ((col - 1) < 0) {
-		neighbors[3] = 0;
+	if ((col - 1) < 0) { // we are on the left most column
+		neighbors[3] = *(matrix + ((row + 0) * columns) + (col - 1 + columns));
 	} else {
 		neighbors[3] = *(matrix + ((row + 0) * columns) + (col - 1));
 	}
-	if ((col + 1) >= COL_SIZE) {
-		neighbors[4] = 0;
+	if ((col + 1) >= COL_SIZE) { // we are on the right most column
+        neighbors[4] = *(matrix + ((row + 0) * columns) + (0));
 	} else {
 		neighbors[4] = *(matrix + ((row + 0) * columns) + (col + 1));
 	}
 	//---------CORNER neighbors
-	if (((row - 1) < 0) || ((col - 1 < 0))) {
-		neighbors[0] = 0;
+	if (((row - 1) < 0) || ((col - 1 < 0))) { // top left corner
+		neighbors[0] = *(matrix + ((row - 1 + rows) * columns) + (col - 1 + columns));
 	} else {
 		neighbors[0] = *(matrix + ((row - 1) * columns) + (col - 1));
 	}
-	if (((row - 1) < 0) || ((col + 1) >= COL_SIZE)) {
-		neighbors[2] = 0;
+	if (((row - 1) < 0) || ((col + 1) >= COL_SIZE)) { // top right corner
+		neighbors[2] = *(matrix + ((row - 1 + rows) * columns) + (0));
 	} else {
 		neighbors[2] = *(matrix + ((row - 1) * columns) + (col + 1));
 	}
-	if (((row + 1) >= ROW_SIZE) || ((col - 1) < 0)) {
-		neighbors[5] = 0;
+	if (((row + 1) >= ROW_SIZE) || ((col - 1) < 0)) { // bottom left corner
+		neighbors[5] = *(matrix + ((0) * columns) + (col - 1 + columns));
 	} else {
 		neighbors[5] = *(matrix + ((row + 1) * columns) + (col - 1));
 	}
-	if (((row + 1) >= ROW_SIZE) || ((col + 1) >= COL_SIZE)) {
+	if (((row + 1) >= ROW_SIZE) || ((col + 1) >= COL_SIZE)) { // bottom right corner
 		neighbors[7] = 0;
 	} else {
-		neighbors[7] = *(matrix + ((row + 1) * columns) + (col + 1));
+		neighbors[7] = *(matrix + ((0) * columns) + (0));
 	}
 
 	//II.) Determine whether current cell lives or dies according to rules

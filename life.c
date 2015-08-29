@@ -17,6 +17,7 @@ int main() {
     int menuOption = 0;
     int iter = 0;
     int offset = 0;
+    bool isStable = false;
     
     // gather space on the heap for the two matrices and the history
     int *newGen = (int *)malloc(sizeof(int) * ROW_SIZE * COL_SIZE);
@@ -59,6 +60,7 @@ int main() {
         // Reset the generation count and begin a new game
         currGen = 0;
         totalGen = 0;
+        isStable = false;
         while (cont != 'n') {
 
             // Get the number of random seeds
@@ -68,14 +70,22 @@ int main() {
                 printf("\nHow many generations do you simulate (positive integer or 0 to return to the menu)?");
             }
 
-            if (iter == -1) {
+            if (iter == 0) {
                 break;
             }
 
             for (; currGen <= (iter + totalGen); currGen++) {
+                
                 printf("\nGeneration %d:\n", currGen);
                 printLife(*history, ROW_SIZE, COL_SIZE);
                 getNewGen(*history, newGen, ROW_SIZE, COL_SIZE);
+                
+                //Analyze stability
+                if (!isStable)
+                    isStable = analyzeHistory(newGen, history, HISTORY_SIZE, ROW_SIZE, COL_SIZE);
+                else
+                    printf("Game is stable. No further generations will unstabilize it.\n");
+                
                 swapGen(&newGen, &history, HISTORY_SIZE);
             }
             totalGen += iter;
@@ -94,9 +104,30 @@ int main() {
 }
 
 /*
- * Setup the game using various user inputs 
+ * If (history + 0) = newGen or if (history + HISTORY_SIZE - 1) == newGen, we can be certain the game has stabilized.
+ * otherwise, we can be about 75% sure the game has not yet stabilized.
  */
-void initGame() {
+bool analyzeHistory(int *newGen, int **history, int historySize, int rows, int columns) {
+    int m, n, offset;
+    bool isStable1 = true, isStable6 = true;
+    for (m = 0; m < rows; m++) {
+        for (n = 0; n < columns; n++) {
+            // Test if the generations are stable
+            offset = (m * columns) + n;
+            if (*(*history + offset) != *(newGen + offset))
+                isStable1 = false;
+            if (*(*(history + historySize - 1) + offset) != *(newGen + offset))
+                isStable6 = false;
+            
+            if (!isStable1 && !isStable6) // both generations tested are not stable
+                break;
+        }
+        if (!isStable1 && !isStable6) // both generations tested are not stable
+            break;
+    }
+    
+    // The game is stable if either the newest generation is stable or the oldest generation is stable
+    return isStable1 || isStable6;
     
 }
 

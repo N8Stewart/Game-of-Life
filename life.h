@@ -19,3 +19,4 @@ void displayMenu();
 int getUserInput();
 int getMenuOption();
 void outputDescription();
+bool analyzeHistory(int *newGen, int **history, int historySize, int rows, int columns);

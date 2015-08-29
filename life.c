@@ -16,79 +16,70 @@ int main() {
     int totalGen = 0;
     int menuOption = 0;
     int iter = 0;
+    int offset = 0;
     
     // gather space on the heap for the two matrices
     int *oldGen = (int *)malloc(sizeof(int) * ROW_SIZE * COL_SIZE);
     int *newGen = (int *)malloc(sizeof(int) * ROW_SIZE * COL_SIZE);
-	
-    //create random seed
-	srand(time(NULL));
-	
-    //initialize oldGen to all 0's
-	for (m = 0; m < ROW_SIZE; m++) {
-		for (n = 0; n < COL_SIZE; n++) {
-			*(oldGen + (m * COL_SIZE) + n) = 0;
-		}
-	}
-	
-    //initialize newGen to all 0's
-	updateGen(oldGen, newGen, ROW_SIZE, COL_SIZE);
-    displayMenu();
-    while ((menuOption = getUserInput()) < 1 || menuOption > 3) {
-        printf("Invalid entry.\n\n");
-        displayMenu();
-    }
     
-    // Switch on the menu option to figure out what to do
-    switch(menuOption) {
-        case 1:
-            
-            break;
-        case 2:
-            
-            break;
-        case 3:
-            
-            break;
-    }
-	
-	//prompt for number of cells to randomly seed
-	do {
+    while ((menuOption = getMenuOption()) != 3) {
         
-		printf("\nHow many alive cells should the seed generate? (maximum of %d)", ROW_SIZE * COL_SIZE);
-		matches = scanf("%d", &cellsAlive);
-        if (matches != 1) {
-            printf("Invalid input.\n");
-            break;
+        if (menuOption == 1) {
+            outputDescription();
+            continue;
         }
-        
-	} while (!randSeed(cellsAlive, oldGen, ROW_SIZE, COL_SIZE));
-			
+    
+        //create random seed
+        srand(time(NULL));
 	
-	printf("The current random seed is:\n");
-	printLife(oldGen, ROW_SIZE, COL_SIZE);
+        //initialize oldGen to all 0's
+        for (m = 0; m < ROW_SIZE; m++) {
+            for (n = 0; n < COL_SIZE; n++) {
+                offset = (m * COL_SIZE) + n;
+                *(oldGen + offset) = 0;
+                *(newGen + offset) = 0;
+            }
+        }
 
-	while (cont != 'n') {
-		
-        printf("\nHow many generations do you simulate (positive integer or -1 to quit)?");
-		matches = scanf("%d", &iter);
-        
-		if (matches != 1) {
-            printf("Invalid input.\n");
-            break;
-        } else if (iter == -1) {
-			break;
-		}
+        //prompt for number of cells to randomly seed
+        do {
 
-		for (i = 0; i <= (iter + totalGen); i++) {
-            printf("\nGeneration %d:\n",i);
-			printLife(oldGen, ROW_SIZE, COL_SIZE);
-			getNewGen(oldGen, newGen, ROW_SIZE, COL_SIZE);
-			updateGen(oldGen, newGen, ROW_SIZE, COL_SIZE);
-		}
-		totalGen += iter;
+            printf("\nHow many alive cells should the seed generate? (maximum of %d)", ROW_SIZE * COL_SIZE);
+            matches = scanf("%d", &cellsAlive);
+            if (matches != 1) {
+                printf("Invalid input.\n");
+                break;
+            }
 
-	}
+        } while (!randSeed(cellsAlive, oldGen, ROW_SIZE, COL_SIZE));
+
+        printf("The current random seed is:\n");
+        printLife(oldGen, ROW_SIZE, COL_SIZE);
+
+        while (cont != 'n') {
+
+            printf("\nHow many generations do you simulate (positive integer or -1 to return to the menu)?");
+            matches = scanf("%d", &iter);
+
+            if (matches != 1) {
+                printf("Invalid input.\n");
+                break;
+            } else if (iter == -1) {
+                break;
+            }
+
+            for (i = 0; i <= (iter + totalGen); i++) {
+                printf("\nGeneration %d:\n",i);
+                printLife(oldGen, ROW_SIZE, COL_SIZE);
+                getNewGen(oldGen, newGen, ROW_SIZE, COL_SIZE);
+                printf("%p %p", oldGen, newGen);
+                swapGen(&oldGen, &newGen);
+                printf("%p %p", oldGen, newGen);
+            }
+            totalGen += iter;
+
+        }
+    }
     
     free(oldGen);
     free(newGen);
@@ -101,6 +92,22 @@ int main() {
  */
 void initGame() {
     
+}
+
+/*
+ * Output the menu and ask for user input until a valid input is provided
+ */
+int getMenuOption() {
+    
+    int menuOption = 0;
+    
+    displayMenu();
+    while ((menuOption = getUserInput()) < 1 || menuOption > 3) {
+        printf("Invalid entry.\n\n");
+        displayMenu();
+    }
+    
+    return menuOption;
 }
 
 /*
@@ -119,7 +126,7 @@ void displayMenu() {
 void outputDescription() {
     printf("\nConway's Game of Life is a mathematical implementation of cellular automation.\n");
     printf("Essentially, an initial seed of 'living cells' is created and then every generation, some cells die, others live, and others are born. This occurs until the only living cells form known patterns that never die.\n");
-    printf("For more information, see the wikipedia page: https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life.\n");
+    printf("For more information, see the wikipedia page: https://en.wikipedia.org/wiki/Conway%%27s_Game_of_Life.\n\n");
 }
 
 /*
@@ -262,16 +269,12 @@ void printLife(int *matrix, int rows, int columns) {
 }
 
 /*
- * Once the new generation has been determined, set the old generation to be equal to the new generation.
+ * Swap the two pointers so oldGen stores the values for newGen and newGen stores the values of oldGen
  */
-void updateGen(int *oldGen, int *newGen, int rows, int columns) {
-    int m = 0, n = 0, offset = 0;
-	for (; m < rows; m++) {
-		for (n = 0; n < columns; n++) {
-            offset = (columns * m) + n;
-			*(oldGen + offset) = *(newGen + offset);
-		}
-	}
+void swapGen(int **oldGen, int **newGen) {
+    int *temp = *oldGen;
+    *oldGen = *newGen;
+    *newGen = temp;
 }
 
 /*

@@ -232,7 +232,7 @@ bool getNewCell(int *matrix, int rows, int columns, int row, int col) {
 	} else {
 		neighbors[1] = *(matrix + ((row - 1) * columns) + (col + 0));
 	}
-	if ((row + 1) >= ROW_SIZE) { // We are on the bottom row, so wrap around to the top row
+	if ((row + 1) >= rows) { // We are on the bottom row, so wrap around to the top row
 		neighbors[6] = *(matrix + ((0) * columns) + (col + 0));
 	} else {
 		neighbors[6] = *(matrix + ((row + 1) * columns) + (col + 0));
@@ -243,7 +243,7 @@ bool getNewCell(int *matrix, int rows, int columns, int row, int col) {
 	} else {
 		neighbors[3] = *(matrix + ((row + 0) * columns) + (col - 1));
 	}
-	if ((col + 1) >= COL_SIZE) { // we are on the right most column
+	if ((col + 1) >= columns) { // we are on the right most column
         neighbors[4] = *(matrix + ((row + 0) * columns) + (0));
 	} else {
 		neighbors[4] = *(matrix + ((row + 0) * columns) + (col + 1));
@@ -262,18 +262,18 @@ bool getNewCell(int *matrix, int rows, int columns, int row, int col) {
     }
     
     if ((row - 1) < 0) {
-        if ((col + 1) >= COL_SIZE) { // top right corner
+        if ((col + 1) >= columns) { // top right corner
             neighbors[2] = *(matrix + ((row - 1 + rows) * columns) + (0));
         } else { // top row but not far right column
             neighbors[2] = *(matrix + ((row - 1 + rows) * columns) + (col + 1));
         }
-    } else if ((col + 1) >= COL_SIZE) { // right column but not top row
+    } else if ((col + 1) >= columns) { // right column but not top row
         neighbors[2] = *(matrix + ((row - 1) * columns) + (0));
     } else { // neither the top row or the far right column
         neighbors[2] = *(matrix + ((row - 1) * columns) + (col + 1));
     }
     
-    if ((row + 1) >= ROW_SIZE) {
+    if ((row + 1) >= rows) {
         if ((col - 1) < 0) { // bottom left corner
             neighbors[5] = *(matrix + ((0) * columns) + (col - 1 + columns));
         } else { // bottom row but not far left column
@@ -285,13 +285,13 @@ bool getNewCell(int *matrix, int rows, int columns, int row, int col) {
         neighbors[5] = *(matrix + ((row + 1) * columns) + (col - 1));
     }
     
-    if ((row + 1) >= ROW_SIZE) { 
-        if ((col + 1) >= COL_SIZE) { // bottom right corner
+    if ((row + 1) >= rows) { 
+        if ((col + 1) >= columns) { // bottom right corner
             neighbors[7] = *(matrix + ((0) * columns) + (0));
         } else { // bottom row but not right most column
             neighbors[7] = *(matrix + ((0) * columns) + (col + 1));
         }
-    } else if ((col + 1) >= COL_SIZE) { // right most column but not bottom row
+    } else if ((col + 1) >= columns) { // right most column but not bottom row
         neighbors[7] = *(matrix + ((row + 1) * columns) + (0));
     } else { // neither the bottom row or the right column
         neighbors[7] = *(matrix + ((row + 1) * columns) + (col + 1));

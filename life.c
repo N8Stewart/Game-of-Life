@@ -64,32 +64,46 @@ int main() {
         while (cont != 'n') {
 
             // Get the number of random seeds
-            printf("\nHow many generations do you simulate (positive integer or 0 to return to the menu)?");
-            while ((iter = getUserInput()) < 0) {
+            printf("\nEnter number of generations to simulate (positive integer, 0 to simulate until stable, or -1 to return to the menu)?");
+            while ((iter = getUserInput()) < -1) {
                 printf("Invalid entry.\n\n");
-                printf("\nHow many generations do you simulate (positive integer or 0 to return to the menu)?");
+                printf("\nEnter number of generations to simulate (positive integer, 0 to simulate until stable, or -1 to return to the menu)?");
             }
 
-            if (iter == 0) {
+            if (iter == -1) {
                 break;
-            }
-
-            for (; currGen <= (iter + totalGen); currGen++) {
-                
-                printf("\nGeneration %d:\n", currGen);
-                printLife(*history, ROW_SIZE, COL_SIZE);
-                getNewGen(*history, newGen, ROW_SIZE, COL_SIZE);
-                
-                //Analyze stability
-                if (!isStable)
+            } else if (iter == 0) { // simulate until stabilization occurs or MAX_GENERATIONS generations have passed.
+                while(!isStable || currGen > MAX_GENERATIONS) {
+                    printf("\nGeneration %d:\n", currGen);
+                    printLife(*history, ROW_SIZE, COL_SIZE);
+                    getNewGen(*history, newGen, ROW_SIZE, COL_SIZE);
                     isStable = analyzeHistory(newGen, history, HISTORY_SIZE, ROW_SIZE, COL_SIZE);
-                else
+                    swapGen(&newGen, &history, HISTORY_SIZE);
+                    
+                    currGen++;
+                }
+                if (isStable) 
                     printf("Game is stable. No further generations will unstabilize it.\n");
+                else 
+                    printf("Unable to stabilize current game. Most likely a complex oscillation is currently alive.\n");
+                totalGen = currGen - 1;
+            } else {
+                for (; currGen <= (iter + totalGen); currGen++) {
                 
-                swapGen(&newGen, &history, HISTORY_SIZE);
-            }
-            totalGen += iter;
+                    printf("\nGeneration %d:\n", currGen);
+                    printLife(*history, ROW_SIZE, COL_SIZE);
+                    getNewGen(*history, newGen, ROW_SIZE, COL_SIZE);
 
+                    //Analyze stability
+                    if (!isStable)
+                        isStable = analyzeHistory(newGen, history, HISTORY_SIZE, ROW_SIZE, COL_SIZE);
+                    else
+                        printf("Game is stable. No further generations will unstabilize it.\n");
+
+                    swapGen(&newGen, &history, HISTORY_SIZE);
+                }
+                totalGen += iter;
+            }
         }
     }
     
@@ -176,7 +190,7 @@ int getUserInput() {
     if(scanf("%d%c", &userInput, &term) != 2 || term != '\n') {
         // Clear stdin
         while (getchar()!='\n');        
-        userInput = -1;
+        userInput = -2;
     }
     
     return userInput;

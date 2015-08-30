@@ -6,6 +6,7 @@
 #define ROW_SIZE 20
 #define COL_SIZE 35
 #define HISTORY_SIZE 6
+#define MAX_GENERATIONS 1000
 
 typedef enum { false, true } bool;
 

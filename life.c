@@ -20,10 +20,10 @@ int main() {
     bool isStable = false;
     
     // gather space on the heap for the two matrices and the history
-    int *newGen = (int *)malloc(sizeof(int) * ROW_SIZE * COL_SIZE);
-    int **history = (int **)malloc(sizeof(int *) * HISTORY_SIZE);
+    int *newGen = malloc(sizeof(int) * ROW_SIZE * COL_SIZE);
+    int **history = malloc(sizeof(int *) * HISTORY_SIZE);
     for (i = 0; i < HISTORY_SIZE; i++) {
-        *(history + i) = (int *)malloc(sizeof(int) * ROW_SIZE * COL_SIZE);
+        *(history + i) = malloc(sizeof(int) * ROW_SIZE * COL_SIZE);
     }
     
     while ((menuOption = getMenuOption()) != 3) {

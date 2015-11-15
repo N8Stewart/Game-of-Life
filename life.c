@@ -18,6 +18,7 @@ int main() {
     int iter = 0;
     int offset = 0;
     bool isStable = false;
+	int stableIteration = -1;
     
     // gather space on the heap for the two matrices and the history
     int *newGen = malloc(sizeof(int) * ROW_SIZE * COL_SIZE);
@@ -73,7 +74,7 @@ int main() {
             if (iter == -1) {
                 break;
             } else if (iter == 0) { // simulate until stabilization occurs or MAX_GENERATIONS generations have passed.
-                while(!isStable || currGen > MAX_GENERATIONS) {
+                while(!isStable && currGen <  MAX_GENERATIONS) {
                     printf("\nGeneration %d:\n", currGen);
                     printLife(*history, ROW_SIZE, COL_SIZE);
                     getNewGen(*history, newGen, ROW_SIZE, COL_SIZE);
@@ -82,9 +83,12 @@ int main() {
                     
                     currGen++;
                 }
-                if (isStable) 
-                    printf("Game is stable. No further generations will unstabilize it.\n");
-                else 
+                if (isStable) {
+					if (stableIteration == -1) {
+						stableIteration = currGen;
+					}
+                    printf("Game stabilized after %d moves.  No further generations will unstabilize it.\n", stableIteration);
+				} else 
                     printf("Unable to stabilize current game. Most likely a complex oscillation is currently alive.\n");
                 totalGen = currGen - 1;
             } else {
@@ -95,11 +99,14 @@ int main() {
                     getNewGen(*history, newGen, ROW_SIZE, COL_SIZE);
 
                     //Analyze stability
-                    if (!isStable)
+                    if (!isStable) {
                         isStable = analyzeHistory(newGen, history, HISTORY_SIZE, ROW_SIZE, COL_SIZE);
-                    else
-                        printf("Game is stable. No further generations will unstabilize it.\n");
-
+					} else {
+						if (stableIteration == -1) {
+							stableIteration = currGen;
+						}
+                    	printf("Game stabilized after %d moves.  No further generations will unstabilize it.\n", stableIteration);
+					}
                     swapGen(&newGen, &history, HISTORY_SIZE);
                 }
                 totalGen += iter;
